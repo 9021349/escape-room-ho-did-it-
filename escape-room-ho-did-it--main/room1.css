@@ -1,0 +1,150 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: #222;
+  color: white;
+  text-align: center;
+}
+
+h1 {
+  color: #ffeb3b;
+  margin-bottom: 10px;
+}
+
+.instructions {
+  color: #ccc;
+  margin-bottom: 20px;
+}
+
+.crime-scene-container {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+  background-image: url('img/muder\ mystery\ 2.jpg');
+  background-size: cover;
+  background-position: center;
+  height: 600px;
+  border: 2px solid #555;
+  border-radius: 10px;
+}
+
+.evidence-marker {
+  position: absolute;
+  width: 35px;
+  height: 35px;
+  background-color: #ffeb3b;
+  color: #000;
+  border: 2px solid #000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.evidence-marker:hover {
+  background-color: #ffc107;
+  transform: scale(1.1);
+}
+
+.evidence-marker.completed {
+  background-color: #4caf50;
+  color: white;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  color: black;
+  padding: 30px;
+  border-radius: 10px;
+  display: none;
+  width: 400px;
+  max-width: 90%;
+}
+
+.modal h2 {
+  margin-top: 0;
+  color: #333;
+}
+
+.modal input {
+  width: 100%;
+  padding: 10px;
+  margin: 15px 0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.modal button {
+  width: 100%;
+  padding: 10px;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.modal button:hover {
+  background: #2980b9;
+}
+
+#feedback {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.feedback-success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.feedback-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+.timer {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background-color: black;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 16px;
+  z-index: 1000;
+}
+
+.evidence-marker.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  background-color: rgb(210, 58, 58) !important;
+}
+.evidence-marker.disabled:hover {
+  background-color: rgb(224, 42, 42) !important;
+  transform: none;
+}

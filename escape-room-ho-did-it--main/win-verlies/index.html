@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Last Party - Uitslag</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">THE LAST PARTY</h1>
+        <p class="subtitle">Murder Mystery Quiz Game</p>
+        
+        <div class="toggle-buttons">
+            <button class="toggle-btn active" onclick="showEnding('victory')">Gewonnen</button>
+            <button class="toggle-btn" onclick="showEnding('defeat')">Verloren</button>
+        </div>
+
+        <!-- Victory Ending -->
+        <div id="victory-ending" class="ending active">
+            <div class="result-container">
+                <h2 class="result-title victory">🎉 GEFELICITEERD! 🎉</h2>
+                <p class="result-text">
+                    Jullie hebben de moordenaar succesvol ontmaskerd! Door slim detectivewerk, 
+                    scherpe observatie en uitstekende teamwork hebben jullie het mysterie van 
+                    The Last Party opgelost.
+                </p>
+                
+                <div class="revelation-box">
+                    "De waarheid kwam eindelijk aan het licht... Het feest is voorbij, 
+                    maar gerechtigheid heeft gezegevierd."
+                </div>
+
+                <div class="murderer-reveal">
+                    <div class="murderer-name">MARCO</div>
+                    <div class="murderer-description">
+                        Sams beste vriend sinds de middelbare school. Maar Sams 
+                        recente succes maakte dat in hun vriendschap, en Marco 
+                        kon het niet verkroppen dat zijn carrière vastliep terwijl 
+                        Sam zo gelukkig over zijn geluk was. Een moment van woede 
+                        veranderde alles voor eeuwig.
+                    </div>
+                </div>
+
+                <div class="stats-container">
+                    <div class="stat-box">
+                        <span class="stat-number">12</span>
+                        <div class="stat-label">Aanwijzingen Gevonden</div>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">8</span>
+                        <div class="stat-label">Juiste Deducties</div>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">23:45</span>
+                        <div class="stat-label">Tijd Besteed</div>
+                    </div>
+                </div>
+
+                <p class="result-text">
+                    Jullie intuïtie en logische redenering hebben de doorslag gegeven. 
+                    De kleine details die anderen over het hoofd zagen, waren voor jullie 
+                    de sleutel tot het oplossen van deze complexe zaak.
+                </p>
+            </div>
+        </div>
+
+        <!-- Defeat Ending -->
+        <div id="defeat-ending" class="ending">
+            <div class="result-container">
+                <h2 class="result-title defeat">💀 HELAAS... 💀</h2>
+                <p class="result-text">
+                    De moordenaar is ontsnapt en het mysterie blijft onopgelost. 
+                    Jullie waren dichtbij, maar de cruciale aanwijzingen zijn jullie 
+                    ontgaan. The Last Party eindigt zonder gerechtigheid...
+                </p>
+                
+                <div class="revelation-box">
+                    "De schaduwen behielden hun geheimen... Misschien zal de waarheid 
+                    nooit bekend worden."
+                </div>
+
+                <div class="murderer-reveal">
+                    <div class="murderer-name">DE WAARHEID ONTSLUIERD</div>
+                    <div class="murderer-description">
+                        Het was MARCO die Sam vermoordde. Jaloezie en wrok over Sams 
+                        succes hadden hem verteerd. Als beste vrienden kende Marco alle 
+                        zwakke plekken, alle gewoontes... Hij gebruikte deze kennis om 
+                        de perfecte moord te plegen. Helaas bleef dit verborgen.
+                    </div>
+                </div>
+
+                <div class="stats-container">
+                    <div class="stat-box">
+                        <span class="stat-number">7</span>
+                        <div class="stat-label">Aanwijzingen Gemist</div>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">4</span>
+                        <div class="stat-label">Foute Verdenkingen</div>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">31:20</span>
+                        <div class="stat-label">Tijd Besteed</div>
+                    </div>
+                </div>
+
+                <p class="result-text">
+                    Geef niet op! Elk detective maakt fouten. De kunst is om te leren 
+                    van deze ervaring en scherper te observeren bij de volgende zaak. 
+                    Misschien willen jullie het nog een keer proberen?
+                </p>
+            </div>
+        </div>
+
+        <div class="buttons-container">
+            <button class="btn" onclick="playAgain()">Speel Opnieuw</button>
+            <button class="btn btn-secondary" onclick="viewSolution()">Bekijk Volledige Oplossing</button>
+            <button class="btn btn-secondary" onclick="backToMenu()">Terug naar Menu</button>
+        </div>
+    </div>
+<script src="script.js"></script>
+
+</body>
+</html>
