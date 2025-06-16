@@ -140,5 +140,7 @@ try {
       });
     </script>
   </div>
+  <div id="timer">Tijd: 30s</div>
+<div id="attemptCounter">Pogingen over: 3</div>
 </body>
 </html>
