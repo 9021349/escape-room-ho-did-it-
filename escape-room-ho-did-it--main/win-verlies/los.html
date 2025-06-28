@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Over - The Last Party</title>
+    <link rel="stylesheet" href="loss.css">
+</head>
+<body>
+    <div class="loss-container">
+        <div class="loss-icon">💀</div>
+        <h1>Game Over</h1>
+        <div class="subtitle">Het mysterie blijft onopgelost...</div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-label">Kamer:</span>
+                <span class="stat-value" id="room">2</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Score:</span>
+                <span class="stat-value" id="score">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Totaal vragen:</span>
+                <span class="stat-value" id="total">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Tijd gebruikt:</span>
+                <span class="stat-value" id="time">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Reden:</span>
+                <span class="stat-value" id="reason">-</span>
+            </div>
+        </div>
+        
+        <div class="message">
+            <p id="message-text">Je was dichtbij, maar niet dichtbij genoeg. De waarheid achter "The Last Party" blijft verborgen in de schaduwen...</p>
+        </div>
+        
+        <div class="buttons">
+            <button class="retry-button" onclick="retryGame()">Opnieuw Proberen</button>
+            <button class="back-button" onclick="goToBegin()">Terug naar Begin</button>
+        </div>
+    </div>
+
+    <script>
+        // Lees URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const room = urlParams.get('room') || '2';
+        const score = urlParams.get('score') || '0';
+        const total = urlParams.get('total') || '0';
+        const timeUsed = urlParams.get('time') || '0';
+        const status = urlParams.get('status') || 'loss';
+
+        // Update de display
+        document.getElementById('room').textContent = room;
+        document.getElementById('score').textContent = score;
+        document.getElementById('total').textContent = total;
+        
+        // Format tijd
+        const minutes = Math.floor(timeUsed / 60);
+        const seconds = timeUsed % 60;
+        document.getElementById('time').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+        // Bepaal reden en pas bericht aan
+        let reason = 'Te veel fouten';
+        let message = 'Je was dichtbij, maar niet dichtbij genoeg. De waarheid achter "The Last Party" blijft verborgen in de schaduwen...';
+
+        if (timeUsed >= 600) {
+            reason = 'Tijd verstreken';
+            message = 'De tijd is verstreken! Het mysterie van "The Last Party" zal voor altijd onopgelost blijven...';
+        } else if (score == 0) {
+            reason = 'Geen correcte antwoorden';
+            message = 'Helaas geen enkele vraag correct beantwoord. Probeer het nog eens met meer aandacht voor de details!';
+        }
+
+        document.getElementById('reason').textContent = reason;
+        document.getElementById('message-text').textContent = message;
+
+        function retryGame() {
+            // Ga terug naar kamer 2 om opnieuw te proberen
+            window.location.href = 'room2.html'; // Pas aan naar je kamer 2 bestand
+        }
+
+        function goToBegin() {
+            window.location.href = 'begin.php';
+        }
+    </script>
+</body>
+</html>

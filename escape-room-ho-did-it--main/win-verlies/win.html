@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gefeliciteerd! - The Last Party</title>
+    <link rel="stylesheet" href="win.css">
+</head>
+<body>
+    <div class="win-container">
+        <div class="win-icon">🏆</div>
+        <h1>Gefeliciteerd!</h1>
+        <div class="subtitle">Je hebt alle mysteries opgelost!</div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-label">Kamer:</span>
+                <span class="stat-value" id="room">2</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Score:</span>
+                <span class="stat-value" id="score">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Totaal vragen:</span>
+                <span class="stat-value" id="total">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Tijd gebruikt:</span>
+                <span class="stat-value" id="time">-</span>
+            </div>
+        </div>
+        
+        <div class="message">
+            <p>Uitstekend werk, detective! Je hebt alle bewijzen correct geanalyseerd en de waarheid achter "The Last Party" onthuld.</p>
+        </div>
+        
+        <button class="back-button" onclick="goToBegin()">Terug naar Begin</button>
+    </div>
+
+    <script>
+        // Lees URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const room = urlParams.get('room') || '2';
+        const score = urlParams.get('score') || '0';
+        const total = urlParams.get('total') || '0';
+        const timeUsed = urlParams.get('time') || '0';
+
+        // Update de display
+        document.getElementById('room').textContent = room;
+        document.getElementById('score').textContent = score;
+        document.getElementById('total').textContent = total;
+        
+        // Format tijd
+        const minutes = Math.floor(timeUsed / 60);
+        const seconds = timeUsed % 60;
+        document.getElementById('time').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+        function goToBegin() {
+            window.location.href = 'begin.php';
+        }
+    </script>
+</body>
+</html>

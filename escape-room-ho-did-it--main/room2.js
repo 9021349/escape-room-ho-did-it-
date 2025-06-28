@@ -46,53 +46,73 @@ function stopTimer() {
   }
 }
 
-function loadQuestion() {
-  const q = questions[currentQuestionIndex];
-  if (!q) return showCompletion();
-
+function showQuestion(markerIndex) {
+  // Start timer als nog niet gestart
   if (!gameStarted) {
     startTimer();
   }
 
-  if (failedQuestions.has(currentQuestionIndex)) {
-    currentQuestionIndex++;
-    return loadQuestion();
+  // Controleer of deze vraag al voltooid of gefaald is
+  if (completedQuestions.has(markerIndex) || failedQuestions.has(markerIndex)) {
+    if (completedQuestions.has(markerIndex)) {
+      setFeedback('Deze vraag is al correct beantwoord!', 'success');
+    } else {
+      setFeedback('Deze vraag is al gefaald na 3 pogingen.', 'blocked');
+    }
+    return;
   }
 
-  if (completedQuestions.has(currentQuestionIndex)) {
-    currentQuestionIndex++;
-    return loadQuestion();
+  currentQuestionIndex = markerIndex;
+  const q = questions[currentQuestionIndex];
+  
+  if (!q) {
+    setFeedback('Vraag niet gevonden.', 'error');
+    return;
   }
 
-  document.getElementById('questionNumber').textContent = currentQuestionIndex + 1;
+  // Toon de modal
+  document.getElementById('overlay').style.display = 'block';
+  document.getElementById('questionModal').style.display = 'block';
+  
+  // Vul vraag in
   document.getElementById('questionText').textContent = q.question;
-  document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
-  document.getElementById('totalQuestions').textContent = questions.length;
-  document.getElementById('progressBar').style.width = ((currentQuestionIndex / questions.length) * 100) + '%';
-
+  
   const answerInputElement = document.getElementById('answerInput');
   answerInputElement.value = '';
   answerInputElement.disabled = false;
-  setFeedback('');
   answerInputElement.focus();
 
+  // Update poging display
   const attempts = questionAttempts.get(currentQuestionIndex) || 0;
   const attemptsLeft = maxAttempts - attempts;
   updateAttemptDisplay(attemptsLeft);
+  
+  setFeedback('');
+}
+
+function closeModal() {
+  document.getElementById('overlay').style.display = 'none';
+  document.getElementById('questionModal').style.display = 'none';
 }
 
 function updateAttemptDisplay(attemptsLeft) {
-  const attemptElement = document.getElementById('attemptCounter');
-  if (attemptElement) {
-    attemptElement.textContent = `Pogingen over: ${attemptsLeft}`;
+  let attemptElement = document.getElementById('attemptCounter');
+  if (!attemptElement) {
+    // Maak element aan als het niet bestaat
+    attemptElement = document.createElement('div');
+    attemptElement.id = 'attemptCounter';
+    attemptElement.className = 'attempts-display';
+    document.getElementById('questionModal').appendChild(attemptElement);
+  }
+  
+  attemptElement.textContent = `Pogingen over: ${attemptsLeft}`;
 
-    if (attemptsLeft <= 1) {
-      attemptElement.style.color = '#f44336';
-      attemptElement.style.fontWeight = 'bold';
-    } else {
-      attemptElement.style.color = '#666';
-      attemptElement.style.fontWeight = 'normal';
-    }
+  if (attemptsLeft <= 1) {
+    attemptElement.style.color = '#f44336';
+    attemptElement.style.fontWeight = 'bold';
+  } else {
+    attemptElement.style.color = '#666';
+    attemptElement.style.fontWeight = 'normal';
   }
 }
 
@@ -120,7 +140,82 @@ function setFeedback(message, type = '') {
 }
 
 function submitAnswer() {
-  const userInput = document.getElementById('answerInput').value.trim().toLowerCase
+  const userInput = document.getElementById('answerInput').value.trim().toLowerCase();
+  const q = questions[currentQuestionIndex];
+  
+  if (!userInput) {
+    setFeedback('Voer een antwoord in.', 'error');
+    return;
+  }
+
+  const correctAnswer = q.answer.toLowerCase().trim();
+  const attempts = questionAttempts.get(currentQuestionIndex) || 0;
+  
+  if (userInput === correctAnswer) {
+    // Correct antwoord
+    completedQuestions.add(currentQuestionIndex);
+    setFeedback('Correct! Goed gedaan!', 'success');
+    
+    // Update marker visueel
+    const marker = document.getElementById(`marker${currentQuestionIndex + 1}`);
+    if (marker) {
+      marker.style.backgroundColor = '#4caf50';
+      marker.style.color = 'white';
+      marker.innerHTML = '✓';
+    }
+    
+    // Sluit modal na 2 seconden
+    setTimeout(() => {
+      closeModal();
+      checkGameCompletion();
+    }, 2000);
+    
+  } else {
+    // Fout antwoord
+    const newAttempts = attempts + 1;
+    questionAttempts.set(currentQuestionIndex, newAttempts);
+    
+    if (newAttempts >= maxAttempts) {
+      // Maximum pogingen bereikt
+      failedQuestions.add(currentQuestionIndex);
+      setFeedback(`Fout! Het juiste antwoord was: ${q.answer}. Deze vraag is nu geblokkeerd.`, 'blocked');
+      
+      // Update marker visueel
+      const marker = document.getElementById(`marker${currentQuestionIndex + 1}`);
+      if (marker) {
+        marker.style.backgroundColor = '#f44336';
+        marker.style.color = 'white';
+        marker.innerHTML = '✗';
+      }
+      
+      setTimeout(() => {
+        closeModal();
+        checkGameCompletion();
+      }, 3000);
+    } else {
+      // Nog pogingen over
+      const attemptsLeft = maxAttempts - newAttempts;
+      setFeedback(`Fout antwoord. Je hebt nog ${attemptsLeft} poging(en) over.`, 'error');
+      updateAttemptDisplay(attemptsLeft);
+      
+      // Focus terug op input
+      document.getElementById('answerInput').focus();
+    }
+  }
+}
+
+function checkGameCompletion() {
+  if (completedQuestions.size === questions.length) {
+    // Alle vragen correct beantwoord
+    setTimeout(() => {
+      endGame(true);
+    }, 1000);
+  } else if (failedQuestions.size + completedQuestions.size === questions.length) {
+    // Alle vragen behandeld (combinatie van correct en gefaald)
+    setTimeout(() => {
+      endGame(false);
+    }, 1000);
+  }
 }
 
 function showCompletion() {
@@ -129,33 +224,52 @@ function showCompletion() {
   const totalQuestions = questions.length;
   const correctAnswers = completedQuestions.size;
   const failedAnswers = failedQuestions.size;
-  
-  document.getElementById('questionSection').style.display = 'none';
-  document.getElementById('completionSection').style.display = 'block';
-  document.getElementById('progressBar').style.width = '100%';
-  
-  // Show results
   const finalTime = 600 - timeLeft;
-  const minutes = Math.floor(finalTime / 60);
-  const seconds = finalTime % 60;
   
-  const completionMessage = document.getElementById('completionMessage');
-  if (completionMessage) {
-    if (correctAnswers === totalQuestions) {
-      completionMessage.innerHTML = `
-        <h2>🎉 Gefeliciteerd!</h2>
-        <p>Je hebt alle ${totalQuestions} vragen correct beantwoord!</p>
-        <p>Tijd gebruikt: ${minutes}:${seconds.toString().padStart(2, '0')}</p>
-      `;
-    } else {
-      completionMessage.innerHTML = `
-        <h2>Quiz voltooid!</h2>
-        <p>Correct beantwoord: ${correctAnswers} van ${totalQuestions}</p>
-        <p>Gefaalde vragen: ${failedAnswers}</p>
-        <p>Tijd gebruikt: ${minutes}:${seconds.toString().padStart(2, '0')}</p>
-      `;
-    }
+  // Bereid data voor om door te geven
+  const gameData = {
+    room: 2,
+    totalQuestions: totalQuestions,
+    correctAnswers: correctAnswers,
+    failedAnswers: failedAnswers,
+    timeUsed: finalTime,
+    success: correctAnswers === totalQuestions
+  };
+  
+  // Redirect naar win/verlies pagina
+  if (correctAnswers === totalQuestions) {
+    // Alle vragen correct - WIN
+    redirectToWinPage(gameData);
+  } else {
+    // Niet alle vragen correct - VERLIES
+    redirectToLossPage(gameData);
   }
+}
+
+function redirectToWinPage(gameData) {
+  // Redirect naar lokale win.html
+  const params = new URLSearchParams({
+    room: gameData.room,
+    score: gameData.correctAnswers,
+    total: gameData.totalQuestions,
+    time: gameData.timeUsed,
+    status: 'win'
+  });
+  
+  window.location.href = `win.html?${params.toString()}`;
+}
+
+function redirectToLossPage(gameData) {
+  // Redirect naar lokale loss.html
+  const params = new URLSearchParams({
+    room: gameData.room,
+    score: gameData.correctAnswers,
+    total: gameData.totalQuestions,
+    time: gameData.timeUsed,
+    status: 'loss'
+  });
+  
+  window.location.href = `loss.html?${params.toString()}`;
 }
 
 function endGame(success) {
@@ -164,13 +278,19 @@ function endGame(success) {
   if (success) {
     showCompletion();
   } else {
-    const message = timeLeft <= 0 
-      ? 'Game Over! De tijd is om.' 
-      : 'Game Over! Te veel vragen fout beantwoord.';
+    // Game over door tijd of te veel fouten
+    const gameData = {
+      room: 2,
+      totalQuestions: questions.length,
+      correctAnswers: completedQuestions.size,
+      failedAnswers: failedQuestions.size,
+      timeUsed: 600 - timeLeft,
+      success: false,
+      reason: timeLeft <= 0 ? 'timeout' : 'too_many_failures'
+    };
     
-    if (confirm(message + ' Wil je opnieuw beginnen?')) {
-      restartGame();
-    }
+    // Direct naar verlies pagina
+    redirectToLossPage(gameData);
   }
 }
 
@@ -187,13 +307,28 @@ function restartGame() {
   stopTimer();
   
   // Reset display
-  document.getElementById('completionSection').style.display = 'none';
-  document.getElementById('questionSection').style.display = 'block';
+  const completionSection = document.getElementById('completionSection');
+  if (completionSection) {
+    completionSection.style.display = 'none';
+  }
+  
+  document.querySelector('.crime-scene-container').style.display = 'block';
+  
+  // Reset markers
+  for (let i = 1; i <= questions.length; i++) {
+    const marker = document.getElementById(`marker${i}`);
+    if (marker) {
+      marker.style.backgroundColor = '#ffeb3b';
+      marker.style.color = '#000';
+      marker.innerHTML = i.toString();
+    }
+  }
   
   // Reset timer display
   updateTimerDisplay();
   
-  loadQuestion();
+  // Close any open modals
+  closeModal();
 }
 
 function goBackToRoom1() {
@@ -202,29 +337,33 @@ function goBackToRoom1() {
 }
 
 // Event listeners
-document.getElementById('answerInput')?.addEventListener('keypress', e => {
-  if (e.key === 'Enter') {
-    submitAnswer();
-  }
-});
-
 document.addEventListener('DOMContentLoaded', () => {
   // Add timer display to page
   const timerHTML = `
     <div class="timer-container">
       <div>Tijd over: <span id="timer">10:00</span></div>
     </div>
-    <button class="restart-btn" onclick="restartGame()">Herstart</button>
+    <button class="restart-btn-fixed" onclick="restartGame()">Herstart</button>
   `;
   
   document.body.insertAdjacentHTML('afterbegin', timerHTML);
   
-  // Add attempt counter to question section
-  const questionSection = document.getElementById('questionSection');
-  if (questionSection) {
-    const attemptHTML = '<div id="attemptCounter" class="attempts-display">Pogingen over: 3</div>';
-    questionSection.insertAdjacentHTML('beforeend', attemptHTML);
-  }
+  // Add event listeners voor markers
+  document.querySelectorAll('.evidence-marker').forEach((marker, index) => {
+    marker.addEventListener('click', () => {
+      showQuestion(index);
+    });
+  });
+  
+  // Event listener voor Enter key in answer input
+  document.getElementById('answerInput')?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      submitAnswer();
+    }
+  });
+  
+  // Event listener voor overlay (om modal te sluiten)
+  document.getElementById('overlay')?.addEventListener('click', closeModal);
   
   // Add styles
   const styles = `
@@ -244,6 +383,61 @@ document.addEventListener('DOMContentLoaded', () => {
         border: 2px solid #ffeb3b;
       }
       
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+      }
+      
+      .modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        max-width: 500px;
+        width: 90%;
+        z-index: 1001;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+      
+      .modal h2 {
+        margin-bottom: 20px;
+        color: #333;
+      }
+      
+      .modal input {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+      }
+      
+      .modal button {
+        background: #4caf50;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 10px;
+      }
+      
+      .modal button:hover {
+        background: #45a049;
+      }
+      
       .attempts-display {
         margin: 10px 0;
         color: #666;
@@ -251,31 +445,62 @@ document.addEventListener('DOMContentLoaded', () => {
         text-align: center;
       }
       
+      .feedback {
+        margin-top: 15px;
+        padding: 10px;
+        border-radius: 4px;
+        text-align: center;
+      }
+      
       .feedback-success {
         background-color: #e8f5e8;
         color: #2e7d32;
         border: 1px solid #4caf50;
-        padding: 10px;
-        border-radius: 4px;
-        margin: 10px 0;
       }
       
       .feedback-error {
         background-color: #ffebee;
         color: #c62828;
         border: 1px solid #f44336;
-        padding: 10px;
-        border-radius: 4px;
-        margin: 10px 0;
       }
       
       .feedback-blocked {
         background-color: #fff3e0;
         color: #ef6c00;
         border: 1px solid #ff9800;
-        padding: 10px;
-        border-radius: 4px;
-        margin: 10px 0;
+      }
+      
+      .completion-section {
+        display: none;
+        text-align: center;
+        padding: 40px 20px;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        margin: 20px auto;
+        max-width: 600px;
+      }
+      
+      .completion-section h2 {
+        color: #2e7d32;
+        margin-bottom: 20px;
+      }
+      
+      .completion-section button {
+        margin: 10px;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      
+      .back-btn {
+        background: #2196f3;
+        color: white;
+      }
+      
+      .back-btn:hover {
+        background: #1976d2;
       }
       
       @keyframes pulse {
@@ -284,7 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
         100% { opacity: 1; }
       }
       
-      .restart-btn {
+      .restart-btn-fixed {
         position: fixed;
         top: 20px;
         left: 20px;
@@ -298,30 +523,16 @@ document.addEventListener('DOMContentLoaded', () => {
         z-index: 1001;
       }
       
-      .restart-btn:hover {
+      .restart-btn-fixed:hover {
         background: #d84315;
-      }
-      
-      #completionMessage {
-        text-align: center;
-        padding: 20px;
-      }
-      
-      #completionMessage h2 {
-        color: #2e7d32;
-        margin-bottom: 15px;
       }
     </style>
   `;
   
   document.head.insertAdjacentHTML('beforeend', styles);
   
-  // Initialize game
-  if (questions?.length) {
-    loadQuestion();
-  } else {
-    showCompletion();
-  }
+  // Initialize timer display
+  updateTimerDisplay();
 });
 
 // Clean up timer when page unloads

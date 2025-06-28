@@ -22,7 +22,7 @@ try {
       position: relative;
       max-width: 800px;
       margin: 0 auto;
-      background-image: url('img/police\ station.jpg')
+      background-image: url('img/police\ station.jpg');
       background-size: cover;
       background-position: center;
       height: 600px;
@@ -78,69 +78,9 @@ try {
     </div>
 
     <script>
+      // Maak questions array beschikbaar voor JavaScript
       const questions = <?php echo json_encode($questions); ?>;
-      let currentQuestionIndex = null;
-      let incorrectAttempts = 0;
-      const maxAttempts = 3;
-
-      function openModal(index) {
-        currentQuestionIndex = index;
-        document.getElementById('questionText').textContent = questions[index].question;
-        document.getElementById('answerInput').value = '';
-        document.getElementById('feedback').textContent = '';
-        document.getElementById('overlay').style.display = 'block';
-        document.getElementById('questionModal').style.display = 'block';
-      }
-
-      function closeModal() {
-        document.getElementById('overlay').style.display = 'none';
-        document.getElementById('questionModal').style.display = 'none';
-      }
-
-      function setFeedback(message, isSuccess = false) {
-        const feedback = document.getElementById('feedback');
-        feedback.textContent = message;
-        feedback.className = isSuccess ? 'feedback-success' : 'feedback-error';
-      }
-
-     function submitAnswer() {
-    const input = document.getElementById('answerInput').value.trim().toLowerCase();
-    const correct = questions[currentQuestionIndex].answer.trim().toLowerCase();
-
-    if (!input) return setFeedback('Vul een antwoord in!');
-
-    if (input === correct) {
-        setFeedback('Correct! Goed gedaan!', true);
-        document.getElementById('marker' + (currentQuestionIndex + 1)).classList.add('completed');
-
-        setTimeout(() => {
-            closeModal();
-            if (document.querySelectorAll('.evidence-marker.completed').length === 3) {
-                window.location.href = 'win-verlies/index.html';
-            }
-        }, 1000);
-    } else {
-        incorrectAttempts++;
-        setFeedback('Fout antwoord. Probeer opnieuw.');
-        if (incorrectAttempts >= maxAttempts) {
-            window.location.href = 'win-verlies/index.html';
-        }
-    }
-}
-
-
-      // Marker click listeners
-      document.getElementById('marker1').addEventListener('click', () => openModal(0));
-      document.getElementById('marker2').addEventListener('click', () => openModal(1));
-      document.getElementById('marker3').addEventListener('click', () => openModal(2));
-      document.getElementById('overlay').addEventListener('click', closeModal);
-
-      document.getElementById('answerInput').addEventListener('keypress', e => {
-        if (e.key === 'Enter') submitAnswer();
-      });
     </script>
-  </div>
-  <div id="timer">Tijd: 30s</div>
-<div id="attemptCounter">Pogingen over: 3</div>
+    <script src="room2.js" defer></script>
 </body>
 </html>
